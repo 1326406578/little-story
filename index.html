@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="robots" content="noindex, nofollow, noarchive">
+  <meta name="theme-color" content="#fff8ed">
+  <meta name="description" content="一场只属于你们的温柔小故事。">
+  <title>人生随机问答</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="ambient ambient-one" aria-hidden="true"></div>
+  <div class="ambient ambient-two" aria-hidden="true"></div>
+  <main class="app-shell">
+    <header class="topbar">
+      <div class="brand"><span class="brand-mark">♡</span><span>人生随机问答</span></div>
+      <button class="music-toggle" id="musicToggle" type="button" aria-pressed="false" title="播放或暂停音乐">
+        <span class="music-icon">♫</span><span id="musicLabel">音乐</span>
+      </button>
+    </header>
+
+    <section class="screen active" id="welcomeScreen" aria-labelledby="welcomeTitle">
+      <div class="illustration hero-illustration" aria-hidden="true">
+        <div class="sun"></div><div class="cloud cloud-a"></div><div class="cloud cloud-b"></div>
+        <div class="hill hill-back"></div><div class="hill hill-front"></div>
+        <div class="letter"><span>♡</span><i></i><i></i><i></i></div>
+        <div class="flower flower-a">✿</div><div class="flower flower-b">✿</div>
+        <div class="sparkle sparkle-a">✦</div><div class="sparkle sparkle-b">✧</div>
+      </div>
+      <p class="eyebrow">A LITTLE STORY FOR YOU</p>
+      <h1 id="welcomeTitle">希望通过这些问题，<br>你们可以更了解彼此，<br>成为人生的伙伴</h1>
+      <p class="intro">准备好了吗？跟着这些小问题，<br>一起走到故事的最后吧。</p>
+      <button class="primary-btn" id="startButton" type="button">开始 <span>→</span></button>
+      <p class="tiny-note">建议戴上耳机 · 慢慢体验</p>
+    </section>
+
+    <section class="screen" id="questionScreen" aria-labelledby="questionTitle">
+      <div class="progress-wrap"><div class="progress-track"><div class="progress-fill" id="progressFill"></div></div><span id="progressText">01 / 13</span></div>
+      <div class="question-card">
+        <div class="question-doodle" aria-hidden="true">✿</div>
+        <p class="eyebrow" id="questionKicker">一个小问题</p>
+        <h2 id="questionTitle"></h2>
+        <p class="question-subtitle" id="questionSubtitle"></p>
+        <div class="answers" id="answers"></div>
+      </div>
+      <button class="text-btn" id="backButton" type="button">← 回到上一页</button>
+    </section>
+
+    <section class="screen" id="letterScreen" aria-labelledby="letterTitle">
+      <p class="eyebrow">A FEW WORDS FOR YOU</p>
+      <h2 class="letter-title" id="letterTitle">有些话，想先认真说给你听。</h2>
+      <div class="letter-card">
+        <div class="letter-body" id="letterBody" aria-live="polite">
+          <p class="letter-loading">正在打开这封信……</p>
+        </div>
+      </div>
+      <button class="letter-next" id="letterNext" type="button" aria-label="继续"><span aria-hidden="true">→</span></button>
+    </section>
+
+    <section class="screen" id="finalScreen" aria-labelledby="finalTitle">
+      <div class="final-art" aria-hidden="true">
+        <div class="heart heart-big">♥</div><div class="heart heart-small">♥</div>
+        <div class="flower flower-c">✿</div><div class="flower flower-d">✿</div>
+        <div class="confetti" id="confetti"></div>
+      </div>
+      <div class="final-prompt" id="finalPrompt">
+        <p class="eyebrow">ONE LAST QUESTION</p>
+        <h2 id="finalTitle">你愿意做我的<br><span>女朋友吗？</span></h2>
+      </div>
+      <p class="final-message" id="finalMessage">如果你也愿意，未来的日子，<br>我想和你一起慢慢收集温柔。</p>
+      <div class="final-actions">
+        <button class="primary-btn yes-btn" id="yesButton" type="button">我愿意 ♡</button>
+        <button class="soft-btn" id="thinkButton" type="button">让我想一想</button>
+      </div>
+      <p class="response-note" id="responseNote" aria-live="polite"></p>
+      <figure class="memory-photo" id="memoryPhoto" hidden></figure>
+      <button class="text-btn restart-btn" id="restartButton" type="button">再从故事的开头走一遍 ↺</button>
+    </section>
+
+    <footer class="footer">made with a little courage <span>♡</span></footer>
+  </main>
+
+  <!-- 问答用的轮播音乐 / 信和表白用的 love.mp3，两个各一个声道，方便交叉淡入淡出 -->
+  <audio id="bgm" preload="auto"></audio>
+  <audio id="bgmLetter" loop preload="auto"></audio>
+  <script src="script.js"></script>
+</body>
+</html>
