@@ -24,7 +24,7 @@ const memoryPhotos = [
 
 // 照片所在的文件夹（按顺序尝试，第一个能加载的胜出）
 // 现在照片放在和 code/ 平级的 picture/ 里
-const PHOTO_DIRS = ["../picture/", "picture/", ""];
+const PHOTO_DIRS = ["picture/", "../picture/", ""];
 
 const bgm = document.getElementById("bgm");
 const bgmLetter = document.getElementById("bgmLetter");
@@ -47,7 +47,7 @@ const LETTER_TRACK = "love.mp3";
 
 // 歌曲所在的文件夹（按顺序尝试，第一个能加载的胜出）
 // 现在歌曲放在和 code/ 平级的 music/ 里
-const MUSIC_DIRS = ["../music/", "music/"];
+const MUSIC_DIRS = ["music/", "../music/"];
 
 // 平时听的音量（0 ~ 1）
 const MUSIC_VOLUME = 0.6;
@@ -162,8 +162,9 @@ function attachMusicFallback(audio) {
 
     audio.src = MUSIC_DIRS[next] + file;
 
-    // 刚才正在播的话，换完源接着播
-    if (!audio.paused) {
+    // 只要之前是想播的，换完源就继续播。
+    // 注意：play() 失败时 paused 仍为 true，不能拿它判断"是否在播"
+    if (audio.dataset.wantPlay === "1") {
 
       audio.play().catch(() => syncMusicLabel());
 
@@ -193,6 +194,8 @@ function playTrack(index, fadeInMs) {
     return Promise.resolve();
 
   }
+
+  bgm.dataset.wantPlay = "1";
 
   bgm.play().catch(() => syncMusicLabel());
 
@@ -249,6 +252,8 @@ function enterLetterMusic() {
 
   bgmLetter.volume = 0;
 
+  bgmLetter.dataset.wantPlay = "1";
+
   bgmLetter.play().catch(() => syncMusicLabel());
 
   return Promise.all([
@@ -266,6 +271,10 @@ function stopMusic(fadeMs) {
     bgm.paused ? Promise.resolve() : fadeAudio(bgm, 0, fadeMs),
     bgmLetter.paused ? Promise.resolve() : fadeAudio(bgmLetter, 0, fadeMs)
   ]).then(() => {
+
+    bgm.dataset.wantPlay = "0";
+
+    bgmLetter.dataset.wantPlay = "0";
 
     bgm.pause();
 
@@ -288,6 +297,8 @@ musicToggle.addEventListener("click", () => {
   if (playing) {
 
     musicOn = false;
+
+    active.dataset.wantPlay = "0";
 
     active.pause();
 
@@ -313,6 +324,8 @@ musicToggle.addEventListener("click", () => {
   }
 
   active.volume = MUSIC_VOLUME;
+
+  active.dataset.wantPlay = "1";
 
   active.play().catch(() => syncMusicLabel());
 
