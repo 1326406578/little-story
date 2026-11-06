@@ -1171,6 +1171,64 @@ document.getElementById("letterNext")
 
 
 // ========================================
+// 表白成功那一刻的音乐
+// ========================================
+
+// 正在播的歌淡出，love.mp3 从头淡入
+// 分两种情况：love.mp3 已在播（信页进来的）就压低后重来；
+// 问答轮播还在播，就做交叉淡入淡出
+function startFinalMusic() {
+
+  if (!musicOn) {
+
+    return Promise.resolve();
+
+  }
+
+  letterMode = true;
+
+  const startLove = () => {
+
+    // 重新载入 = 从 0:00 开始播
+    setTrackSrc(bgmLetter, LETTER_TRACK);
+
+    bgmLetter.volume = 0;
+
+    bgmLetter.dataset.wantPlay = "1";
+
+    bgmLetter.play().catch(() => syncMusicLabel());
+
+    return fadeAudio(bgmLetter, MUSIC_VOLUME, MUSIC_FADE_MS);
+
+  };
+
+  // 情况一：love.mp3 正在播 —— 先快速压低，再从开头淡入
+  if (!bgmLetter.paused) {
+
+    return fadeAudio(bgmLetter, 0, 500)
+      .then(() => {
+
+        bgmLetter.pause();
+
+        return startLove();
+
+      })
+      .then(syncMusicLabel);
+
+  }
+
+  // 情况二：问答轮播还在播 —— 交叉淡入淡出
+  const fadeOut = bgm.paused
+    ? Promise.resolve()
+    : fadeAudio(bgm, 0, MUSIC_FADE_MS).then(() => bgm.pause());
+
+  return Promise.all([fadeOut, startLove()])
+    .then(syncMusicLabel);
+
+}
+
+
+// ========================================
 // 表白成功
 // ========================================
 
@@ -1195,6 +1253,9 @@ document.getElementById("yesButton")
     // 收起问题和两个选项，画面留给后面的话和照片
     document.getElementById("finalScreen").classList.add("answered");
 
+
+    // 音乐切到 love.mp3：正在播的淡出，从头淡入
+    startFinalMusic();
 
     // 再次播放装饰动画
     makeConfetti();
