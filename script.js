@@ -124,6 +124,93 @@ function syncMusicLabel() {
 }
 
 
+// ========================================
+// 手机端的音频解锁
+// ========================================
+
+// iOS Safari 要求每个 <audio> 都被一次用户手势"解锁"过,
+// 否则之后用代码调 play() 会被静默拒绝。
+// 做法:页面第一次被触摸/点击时,把 bgmLetter 以 0 音量播一下再停。
+let audioUnlocked = false;
+
+function unlockAudio() {
+
+  if (audioUnlocked) {
+
+    return;
+
+  }
+
+  audioUnlocked = true;
+
+  bgmLetter.volume = 0;
+
+  const p = bgmLetter.play();
+
+  if (p && typeof p.then === "function") {
+
+    p.then(() => {
+
+      // 已经在放信页音乐了就别打断
+      if (letterMode) {
+
+        return;
+
+      }
+
+      bgmLetter.pause();
+
+      bgmLetter.currentTime = 0;
+
+    }).catch(() => {});
+
+  }
+
+}
+
+
+// play() 被自动播放策略拦下时,等下一次触摸/点击再补播
+function playWithRetry(audio) {
+
+  const p = audio.play();
+
+  if (p && typeof p.catch === "function") {
+
+    p.catch(() => {
+
+      syncMusicLabel();
+
+      const retry = () => {
+
+        if (audio.dataset.wantPlay === "1" && audio.paused) {
+
+          audio.play().catch(() => {});
+
+        }
+
+      };
+
+      document.addEventListener("touchstart", retry, { once: true, passive: true });
+
+      document.addEventListener("click", retry, { once: true });
+
+    });
+
+  }
+
+  return p;
+
+}
+
+
+// 任何一次用户手势都当作解锁机会
+["touchstart", "touchend", "click", "keydown"].forEach(eventName => {
+
+  document.addEventListener(eventName, unlockAudio, { once: true, passive: true });
+
+});
+
+
 // 问答阶段的轮播：一首放完自动切下一首，切歌时轻轻淡入
 // 给音频换源：一个目录加载失败就自动试下一个
 function setTrackSrc(audio, file) {
@@ -166,7 +253,7 @@ function attachMusicFallback(audio) {
     // 注意：play() 失败时 paused 仍为 true，不能拿它判断"是否在播"
     if (audio.dataset.wantPlay === "1") {
 
-      audio.play().catch(() => syncMusicLabel());
+      playWithRetry(audio);
 
     }
 
@@ -177,6 +264,12 @@ function attachMusicFallback(audio) {
 attachMusicFallback(bgm);
 
 attachMusicFallback(bgmLetter);
+
+// 页面一打开就预载信页那首 love.mp3,
+// 等走到信页时不用现下载(手机上 4MB 现下会等很久甚至失败)
+setTrackSrc(bgmLetter, LETTER_TRACK);
+
+bgmLetter.volume = 0;
 
 
 function playTrack(index, fadeInMs) {
@@ -197,7 +290,7 @@ function playTrack(index, fadeInMs) {
 
   bgm.dataset.wantPlay = "1";
 
-  bgm.play().catch(() => syncMusicLabel());
+  playWithRetry(bgm);
 
   return fadeAudio(bgm, MUSIC_VOLUME, fadeInMs)
     .then(syncMusicLabel);
@@ -254,7 +347,7 @@ function enterLetterMusic() {
 
   bgmLetter.dataset.wantPlay = "1";
 
-  bgmLetter.play().catch(() => syncMusicLabel());
+  playWithRetry(bgmLetter);
 
   return Promise.all([
     fadeOut,
@@ -327,7 +420,7 @@ musicToggle.addEventListener("click", () => {
 
   active.dataset.wantPlay = "1";
 
-  active.play().catch(() => syncMusicLabel());
+  playWithRetry(active);
 
   musicLabel.textContent = "暂停";
 
@@ -650,6 +743,9 @@ function showScreen(name) {
 // ========================================
 
 function startStory() {
+
+  // 点击"开始"本身就是用户手势,顺手把信页音频也解锁了
+  unlockAudio();
 
   clearTimers();
 
