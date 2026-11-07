@@ -341,7 +341,13 @@ function enterLetterMusic() {
 
   }
 
-  setTrackSrc(bgmLetter, LETTER_TRACK);
+  // 已经预载过同一首就别重设 src：
+  // 重新赋值会让音频重新加载，iOS 上紧接着的 play() 可能被推迟甚至失败
+  if (!bgmLetter.src || bgmLetter.dataset.track !== LETTER_TRACK) {
+
+    setTrackSrc(bgmLetter, LETTER_TRACK);
+
+  }
 
   bgmLetter.volume = 0;
 
@@ -673,9 +679,13 @@ Object.assign(story, {
 
     subtitle: "我想把接下来的一句话，认真地告诉你。",
 
-    answers: [],
-
-    autoNext: "letter"
+    answers: [
+      {
+        text: "想听你说",
+        symbol: "→",
+        next: "letter"
+      }
+    ]
   }
 
 });
